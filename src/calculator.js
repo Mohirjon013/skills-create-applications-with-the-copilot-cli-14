@@ -4,6 +4,9 @@
  * - Subtraction (-)
  * - Multiplication (*)
  * - Division (/)
+ * - Modulo (%)
+ * - Exponentiation (power, ^)
+ * - Square root (sqrt)
  */
 
 function validateNumber(value, name) {
@@ -39,12 +42,38 @@ function divide(a, b) {
   return a / b;
 }
 
+function modulo(a, b) {
+  validateNumber(a, "a");
+  validateNumber(b, "b");
+  if (b === 0) {
+    throw new RangeError("Cannot calculate modulo with zero");
+  }
+  return a % b;
+}
+
+function power(base, exponent) {
+  validateNumber(base, "base");
+  validateNumber(exponent, "exponent");
+  return base ** exponent;
+}
+
+function squareRoot(n) {
+  validateNumber(n, "n");
+  if (n < 0) {
+    throw new RangeError("Cannot calculate the square root of a negative number");
+  }
+  return Math.sqrt(n);
+}
+
 function calculate(operation, a, b) {
   const operations = {
     "+": add,
     "-": subtract,
     "*": multiply,
-    "/": divide
+    "/": divide,
+    "%": modulo,
+    "^": power,
+    "sqrt": (n) => squareRoot(n)
   };
 
   const fn = operations[operation];
@@ -56,8 +85,24 @@ function calculate(operation, a, b) {
 }
 
 function runCli(args) {
+  if (args.length === 2 && args[0].toLowerCase() === "sqrt") {
+    const n = Number(args[1]);
+    if (!Number.isFinite(n)) {
+      throw new TypeError("Operand must be a valid finite number");
+    }
+    return squareRoot(n);
+  }
+
+  if (args.length === 2 && args[1].toLowerCase() === "sqrt") {
+    const n = Number(args[0]);
+    if (!Number.isFinite(n)) {
+      throw new TypeError("Operand must be a valid finite number");
+    }
+    return squareRoot(n);
+  }
+
   if (args.length !== 3) {
-    throw new Error("Usage: node src/calculator.js <number> <+|-|*|/> <number>");
+    throw new Error("Usage: node src/calculator.js <number> <+|-|*|/|%|^> <number> | node src/calculator.js sqrt <number>");
   }
 
   const a = Number(args[0]);
@@ -79,4 +124,14 @@ if (require.main === module) {
   }
 }
 
-module.exports = { add, subtract, multiply, divide, calculate, runCli };
+module.exports = {
+  add,
+  subtract,
+  multiply,
+  divide,
+  modulo,
+  power,
+  squareRoot,
+  calculate,
+  runCli
+};

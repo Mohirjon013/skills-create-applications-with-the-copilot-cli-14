@@ -3,6 +3,9 @@ const {
   subtract,
   multiply,
   divide,
+  modulo,
+  power,
+  squareRoot,
   calculate,
   runCli
 } = require("../calculator");
@@ -51,6 +54,53 @@ describe("division edge cases", () => {
     expect(() => divide(20, 0)).toThrow("Cannot divide by zero");
   });
 
+  describe("extended calculator operations", () => {
+    test("calculates the remainder for 5 modulo 2", () => {
+      expect(modulo(5, 2)).toBe(1);
+    });
+
+    test("calculates negative and decimal modulo values", () => {
+      expect(modulo(-5, 2)).toBe(-1);
+      expect(modulo(5.5, 2)).toBe(1.5);
+    });
+
+    test("raises 2 to the power 3", () => {
+      expect(power(2, 3)).toBe(8);
+    });
+
+    test("supports powers with zero and negative exponents", () => {
+      expect(power(7, 0)).toBe(1);
+      expect(power(2, -2)).toBe(0.25);
+    });
+
+    test("calculates the square root of 16", () => {
+      expect(squareRoot(16)).toBe(4);
+    });
+
+    test("supports decimal and zero square roots", () => {
+      expect(squareRoot(2.25)).toBe(1.5);
+      expect(squareRoot(0)).toBe(0);
+    });
+  });
+
+  describe("extended operation edge cases", () => {
+    test("throws for modulo by zero", () => {
+      expect(() => modulo(5, 0)).toThrow("Cannot calculate modulo with zero");
+    });
+
+    test("throws for square root of a negative number", () => {
+      expect(() => squareRoot(-16)).toThrow(
+        "Cannot calculate the square root of a negative number"
+      );
+    });
+
+    test("rejects invalid extended operation operands", () => {
+      expect(() => modulo("5", 2)).toThrow(TypeError);
+      expect(() => power(2, Infinity)).toThrow(TypeError);
+      expect(() => squareRoot(NaN)).toThrow(TypeError);
+    });
+  });
+
   test("throws for negative zero divisor", () => {
     expect(() => divide(20, -0)).toThrow("Cannot divide by zero");
   });
@@ -72,13 +122,16 @@ describe("calculate dispatch", () => {
     ["+", 2, 3, 5],
     ["-", 10, 4, 6],
     ["*", 45, 2, 90],
-    ["/", 20, 5, 4]
+    ["/", 20, 5, 4],
+    ["%", 5, 2, 1],
+    ["^", 2, 3, 8],
+    ["sqrt", 16, undefined, 4]
   ])("calculates %s", (operation, a, b, expected) => {
     expect(calculate(operation, a, b)).toBe(expected);
   });
 
   test("rejects unsupported operations", () => {
-    expect(() => calculate("%", 10, 2)).toThrow("Unsupported operation");
+    expect(() => calculate("&", 10, 2)).toThrow("Unsupported operation");
   });
 });
 
@@ -88,6 +141,9 @@ describe("CLI runner", () => {
     expect(runCli(["10", "-", "4"])).toBe(6);
     expect(runCli(["45", "*", "2"])).toBe(90);
     expect(runCli(["20", "/", "5"])).toBe(4);
+    expect(runCli(["5", "%", "2"])).toBe(1);
+    expect(runCli(["2", "^", "3"])).toBe(8);
+    expect(runCli(["sqrt", "16"])).toBe(4);
   });
 
   test("rejects invalid CLI arguments", () => {
